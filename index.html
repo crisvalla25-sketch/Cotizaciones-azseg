@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cotizaciones AZSEG</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f2f5;color:#111;min-height:100vh}
+.header{background:#111;padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.header-logo{display:flex;align-items:center;gap:10px}
+.logo-box{background:#111;border:2px solid #4a9eff;border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:8px}
+.logo-icon{font-size:22px}
+.logo-text{color:#fff;font-weight:900;font-size:18px;letter-spacing:3px}
+.logo-sub{color:#4a9eff;font-size:8px;letter-spacing:1px;display:block}
+.header-right{color:#4a9eff;font-size:11px;margin-left:auto}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 80px}
+.card{background:#fff;border-radius:10px;padding:18px 18px;margin-bottom:14px;box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.card-title{font-weight:700;font-size:13px;color:#111;margin-bottom:14px;padding-bottom:7px;border-bottom:2.5px solid #4a9eff}
+.import-card{border:2px dashed #4a9eff}
+.import-title{font-weight:700;font-size:13px;color:#1a56db;margin-bottom:5px}
+.import-sub{font-size:12px;color:#777;margin-bottom:12px}
+.badge{display:none;margin-top:10px;padding:8px 12px;border-radius:7px;font-size:12px;font-weight:700}
+.badge.info{display:block;color:#1a56db;background:#dbeafe}
+.badge.ok{display:block;color:#166534;background:#dcfce7}
+.badge.err{display:block;color:#991b1b;background:#fee2e2}
+.tipo-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tipo-btn{padding:12px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:700;font-size:14px;color:#666;cursor:pointer;transition:.15s}
+.tipo-btn.on{border-color:#4a9eff;background:#eff6ff;color:#1a56db}
+label.lbl{display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:4px;margin-top:10px}
+input,textarea{width:100%;padding:9px 11px;border-radius:7px;border:1.5px solid #ddd;font-size:13px;color:#111;font-family:Arial,sans-serif}
+input:focus,textarea:focus{outline:none;border-color:#4a9eff}
+textarea{resize:vertical}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+.item-box{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:9px;padding:14px;margin-bottom:12px;position:relative}
+.item-num{font-weight:700;font-size:12px;color:#555;margin-bottom:9px}
+.item-imp{text-align:right;font-weight:700;color:#1a56db;font-size:14px;margin-top:8px}
+.btn-x{position:absolute;top:10px;right:12px;background:none;border:none;color:#ef4444;font-size:20px;cursor:pointer;line-height:1;padding:0}
+.btn-add{width:100%;padding:11px;border-radius:8px;border:2px dashed #4a9eff;background:#eff6ff;color:#1a56db;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px}
+.btn-main{width:100%;padding:15px;border-radius:10px;border:none;background:#111;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px}
+.btn-back{padding:10px 20px;border-radius:8px;border:2px solid #555;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
+.btn-pdf{padding:10px 24px;border-radius:8px;border:none;background:#1a56db;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.btn-pdf:disabled{background:#888;cursor:not-allowed}
+.totbox{background:#f8f9fb;border-radius:8px;padding:14px 16px;line-height:2.3;font-size:14px}
+.totbox .big{font-size:16px;border-top:2px solid #111;padding-top:6px;margin-top:4px}
+/* PREVIEW */
+#pv{display:none;background:#d1d5db;min-height:100vh;padding:20px 14px}
+.pv-wrap{max-width:860px;margin:0 auto}
+.pv-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.pv-doc{background:#fff;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.18);padding:40px 44px}
+@media(max-width:600px){.pv-doc{padding:22px 14px}}
+.enc{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.enc-logo{display:flex;align-items:center;gap:10px}
+.enc-logo-box{background:#111;border-radius:6px;padding:8px 14px;display:flex;align-items:center;gap:8px}
+.enc-logo-icon{font-size:26px}
+.enc-logo-name{color:#fff;font-weight:900;font-size:20px;letter-spacing:3px}
+.enc-logo-sub{color:#4a9eff;font-size:9px;letter-spacing:1px;display:block}
+.enc-contact{text-align:right;font-size:10px;line-height:1.9;color:#333}
+table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:10px}
+thead tr{background:#111}
+thead th{padding:9px 9px;color:#fff;font-weight:700;text-align:center;font-size:10px}
+thead th:first-child{text-align:left}
+tbody tr{border-bottom:1px solid #e5e7eb}
+tbody tr:nth-child(even){background:#f9fafb}
+tbody td{padding:9px 9px;vertical-align:top;line-height:1.55;text-align:center;font-size:10px}
+tbody td:first-child{text-align:left}
+.tots{font-size:11px;line-height:2.3;margin-bottom:22px}
+.conds{font-size:9.5px;color:#333;line-height:1.8}
+.conds ul{list-style:none;padding:0;margin-bottom:8px}
+.conds ul li:before{content:"• "}
+.status-msg{font-size:12px;color:#1a56db;margin-left:6px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-box">
+    <span class="logo-icon">🔒</span>
+    <div>
+      <span class="logo-text">AZSEG</span>
+      <span class="logo-sub">EMPRESA DE SEGURIDAD ELECTRÓNICA</span>
+    </div>
+  </div>
+  <span class="header-right">Generador de Cotizaciones</span>
+</div>
+
+<!-- FORMULARIO -->
+<div id="fm">
+<div class="wrap">
+
+  <!-- Importar PDF -->
+  <div class="card import-card">
+    <div class="import-title">📎 Importar desde PDF</div>
+    <div class="import-sub">Sube una cotización PDF para extraer los productos automáticamente.</div>
+    <input type="file" id="fi" accept="application/pdf" style="display:none">
+    <button style="padding:9px 18px;border-radius:7px;border:none;background:#1a56db;color:#fff;font-weight:700;cursor:pointer;font-size:13px" onclick="document.getElementById('fi').click()">📂 Seleccionar PDF</button>
+    <div class="badge" id="ist"></div>
+  </div>
+
+  <!-- Tipo -->
+  <div class="card">
+    <div class="card-title">Tipo de documento</div>
+    <div class="tipo-row">
+      <button class="tipo-btn on" id="btc" onclick="setTipo('cotizacion')">📄 Cotización</button>
+      <button class="tipo-btn" id="btn" onclick="setTipo('nota')">🗒️ Nota</button>
+    </div>
+  </div>
+
+  <!-- Cliente -->
+  <div class="card">
+    <div class="card-title">Cliente</div>
+    <label class="lbl">Nombre del cliente o empresa</label>
+    <input type="text" id="cli" placeholder="Ej. Juan García / Empresa XYZ">
+  </div>
+
+  <!-- Conceptos -->
+  <div class="card">
+    <div class="card-title">Conceptos / Productos</div>
+    <div id="items"></div>
+    <button class="btn-add" onclick="addItem()">+ Agregar concepto</button>
+  </div>
+
+  <!-- Totales -->
+  <div class="card">
+    <div class="card-title">Resumen de totales</div>
+    <div class="totbox">
+      <div>Subtotal: <strong id="ts">$0.00</strong></div>
+      <div id="tiva">IVA (16%): <strong id="ti">$0.00</strong></div>
+      <div class="big">Total: <strong id="tt">$0.00</strong></div>
+    </div>
+  </div>
+
+  <!-- Condiciones -->
+  <div class="card" id="cc">
+    <div class="card-title">Condiciones comerciales</div>
+    <div class="g2">
+      <div>
+        <label class="lbl">% de anticipo</label>
+        <input type="number" id="ant" value="50">
+      </div>
+      <div>
+        <label class="lbl">Tiempo estimado de instalación</label>
+        <input type="text" id="tins" value="1 a 2 días naturales">
+      </div>
+    </div>
+    <label class="lbl">Garantía</label>
+    <input type="text" id="gar" value="1 año contra defectos de instalación y fabricación.">
+  </div>
+
+  <button class="btn-main" onclick="showPreview()">🔍 Vista previa</button>
+</div>
+</div>
+
+<!-- PREVIEW -->
+<div id="pv">
+<div class="pv-wrap">
+  <div class="pv-bar">
+    <button class="btn-back" onclick="showForm()">← Editar</button>
+    <button class="btn-pdf" id="bpdf" onclick="makePDF()">⬇️ Descargar PDF</button>
+    <span class="status-msg" id="pmsg"></span>
+  </div>
+  <div class="pv-doc" id="pvdoc">
+    <div class="enc">
+      <div class="enc-logo-box">
+        <span class="enc-logo-icon">🔒</span>
+        <div>
+          <span class="enc-logo-name">AZSEG</span>
+          <span class="enc-logo-sub">EMPRESA DE SEGURIDAD ELECTRÓNICA</span>
+        </div>
+      </div>
+      <div class="enc-contact">
+        <strong>www.azseg.mx</strong><br>
+        Facebook: Azseg<br>
+        TikTok: Azseg Seguridad<br>
+        Tel: 8147905469<br>
+        Correo: azseg7@gmail.com
+      </div>
+    </div>
+    <div style="margin-bottom:18px">
+      <div style="font-size:15px;font-weight:700" id="ptit">COTIZACIÓN</div>
+      <div style="font-size:12px;font-weight:700;margin-top:3px" id="pcli"></div>
+    </div>
+    <table><thead id="pth"></thead><tbody id="ptb"></tbody></table>
+    <div class="tots" id="ptot"></div>
+    <div class="conds" id="pcon"></div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+var tipo="cotizacion", items=[], nid=1;
+
+function newItem(){return{id:nid++,desc:"",qty:"1",unit:"",price:"",disc:""};}
+items.push(newItem());
+
+function setTipo(t){
+  tipo=t;
+  document.getElementById("btc").classList.toggle("on",t==="cotizacion");
+  document.getElementById("btn").classList.toggle("on",t==="nota");
+  document.getElementById("cc").style.display=t==="cotizacion"?"block":"none";
+  recalc();
+}
+
+function addItem(){items.push(newItem());render();}
+
+function delItem(id){
+  if(items.length===1)return;
+  items=items.filter(function(i){return i.id!==id;});
+  render();
+}
+
+function upd(id,f,v){
+  var it=items.find(function(i){return i.id===id;});
+  if(it){it[f]=v;recalc();}
+}
+
+function imp(it){
+  var q=parseFloat(it.qty)||0;
+  var p=parseFloat((it.price||"").replace(/,/g,""))||0;
+  var d=parseFloat(it.disc)||0;
+  return Math.round(q*p*(1-d/100));
+}
+
+function fmx(n){
+  if(!n&&n!==0)return"$0.00";
+  return"$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function recalc(){
+  var sub=items.reduce(function(a,i){return a+imp(i);},0);
+  var iva=Math.round(sub*0.16);
+  var tot=sub+iva;
+  document.getElementById("ts").textContent=fmx(sub);
+  document.getElementById("ti").textContent=fmx(iva);
+  document.getElementById("tt").textContent=fmx(tipo==="cotizacion"?tot:sub);
+  document.getElementById("tiva").style.display=tipo==="cotizacion"?"block":"none";
+  items.forEach(function(it){
+    var el=document.getElementById("ip"+it.id);
+    if(el)el.textContent="Importe: "+fmx(imp(it));
+  });
+}
+
+function render(){
+  var c=document.getElementById("items");
+  c.innerHTML="";
+  items.forEach(function(it,i){
+    var d=document.createElement("div");
+    d.className="item-box";
+    d.innerHTML=
+      '<div class="item-num">Concepto #'+(i+1)+'</div>'+
+      (items.length>1?'<button class="btn-x" onclick="delItem('+it.id+')">✕</button>':'')+
+      '<label class="lbl">Descripción</label>'+
+      '<textarea rows="3" placeholder="Describe el producto o servicio..." oninput="upd('+it.id+','desc',this.value)">'+it.desc+'</textarea>'+
+      '<div class="g4" style="margin-top:8px">'+
+        '<div><label class="lbl">Cantidad</label><input type="number" value="'+it.qty+'" placeholder="1" oninput="upd('+it.id+','qty',this.value)"></div>'+
+        '<div><label class="lbl">Unidad</label><input type="text" value="'+it.unit+'" placeholder="pza, m..." oninput="upd('+it.id+','unit',this.value)"></div>'+
+        '<div><label class="lbl">Precio U. ($)</label><input type="number" value="'+it.price+'" placeholder="0.00" oninput="upd('+it.id+','price',this.value)"></div>'+
+        '<div><label class="lbl">Descuento (%)</label><input type="number" value="'+it.disc+'" placeholder="0" oninput="upd('+it.id+','disc',this.value)"></div>'+
+      '</div>'+
+      '<div class="item-imp" id="ip'+it.id+'">Importe: '+fmx(imp(it))+'</div>';
+    c.appendChild(d);
+  });
+  recalc();
+}
+
+function showForm(){
+  document.getElementById("pv").style.display="none";
+  document.getElementById("fm").style.display="block";
+  window.scrollTo(0,0);
+}
+
+function showPreview(){
+  var cli=document.getElementById("cli").value.trim();
+  var hasDisc=items.some(function(i){return parseFloat(i.disc)>0;});
+  var sub=items.reduce(function(a,i){return a+imp(i);},0);
+  var iva=Math.round(sub*0.16),tot=sub+iva;
+  var ant=document.getElementById("ant").value||"50";
+  var tins=document.getElementById("tins").value;
+  var gar=document.getElementById("gar").value;
+
+  document.getElementById("ptit").textContent=tipo==="cotizacion"?"COTIZACIÓN":"NOTA";
+  document.getElementById("pcli").textContent=cli;
+
+  // Cabecera tabla
+  var th='<tr><th style="text-align:left;width:50%">Concepto</th><th style="width:12%">Cantidad</th>';
+  if(hasDisc)th+='<th style="width:10%">Descuento</th>';
+  th+='<th style="width:14%">Precio U.</th><th style="width:14%">Importe</th></tr>';
+  document.getElementById("pth").innerHTML=th;
+
+  // Filas
+  var tb="";
+  items.forEach(function(it,i){
+    var bg=i%2===1?"background:#f9fafb":"";
+    tb+='<tr style="border-bottom:1px solid #e5e7eb;'+bg+'">'+
+      '<td style="text-align:left">'+( it.desc||"-")+'</td>'+
+      '<td>'+it.qty+(it.unit?" "+it.unit:"")+'</td>'+
+      (hasDisc?'<td>'+(parseFloat(it.disc)>0?it.disc+"%":"-")+'</td>':"")+
+      '<td>'+fmx(it.price)+'</td>'+
+      '<td>'+fmx(imp(it))+'</td>'+
+    '</tr>';
+  });
+  document.getElementById("ptb").innerHTML=tb;
+
+  // Totales
+  var tot_html="";
+  if(tipo==="cotizacion"){
+    tot_html='<div><strong>Subtotal:</strong> '+fmx(sub)+'</div>'+
+             '<div><strong>IVA (16%):</strong> '+fmx(iva)+'</div>'+
+             '<div><strong>Total:</strong> '+fmx(tot)+'</div>';
+  } else {
+    tot_html='<div><strong>Total:</strong> '+fmx(sub)+'</div>';
+  }
+  document.getElementById("ptot").innerHTML=tot_html;
+
+  // Condiciones
+  var con_html="";
+  if(tipo==="cotizacion"){
+    var clist=[
+      "Para iniciar el trabajo es necesario un anticipo del "+ant+"% del valor total de la cotización.",
+      "El saldo restante se liquidará al finalizar la instalación y una vez verificado el correcto funcionamiento del sistema.",
+      "Tiempo estimado de instalación: de "+tins+" a partir de la fecha de pago del anticipo.",
+      "Garantía de los equipos y mano de obra: "+gar,
+      "Garantía no válida por descargas eléctricas, variaciones de voltaje, humedad o mal uso.",
+      "Cualquier material adicional no contemplado en esta cotización se cotizará por separado."
+    ];
+    con_html='<div style="font-weight:700;font-size:10px;margin-bottom:4px">Condiciones comerciales</div>'+
+      '<ul>'+clist.map(function(c){return'<li>'+c+'</li>';}).join("")+'</ul>'+
+      '<div style="font-weight:700;margin-bottom:4px">Descuentos:</div>'+
+      '<ul>'+
+        '<li>Los descuentos aplicados son exclusivos para esta cotización.</li>'+
+        '<li>No acumulables con otras promociones.</li>'+
+        '<li>Sujetos a disponibilidad de inventario.</li>'+
+      '</ul>';
+  }
+  document.getElementById("pcon").innerHTML=con_html;
+
+  document.getElementById("fm").style.display="none";
+  document.getElementById("pv").style.display="block";
+  window.scrollTo(0,0);
+}
+
+function makePDF(){
+  var btn=document.getElementById("bpdf");
+  var msg=document.getElementById("pmsg");
+  btn.disabled=true; msg.textContent="⏳ Generando...";
+
+  setTimeout(function(){
+    try{
+      var jsPDF=window.jspdf.jsPDF;
+      var doc=new jsPDF({unit:"mm",format:"letter"});
+      var ML=18,MR=18,PW=215.9,CW=PW-ML-MR;
+      var Y=18;
+      var NEGRO=[17,17,17],GRIS=[220,220,220],PAD=2.5,HH=8;
+
+      var cli=document.getElementById("cli").value.trim();
+      var ant=document.getElementById("ant")?document.getElementById("ant").value:"50";
+      var tins=document.getElementById("tins")?document.getElementById("tins").value:"1 a 2 días naturales";
+      var gar=document.getElementById("gar")?document.getElementById("gar").value:"1 año contra defectos de instalación y fabricación.";
+      var hasDisc=items.some(function(i){return parseFloat(i.disc)>0;});
+
+      // ── Logo como texto ──
+      doc.setFillColor(17,17,17);
+      doc.rect(ML,Y,58,18,"F");
+      doc.setTextColor(255,255,255);
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(16);
+      doc.text("AZSEG",ML+22,Y+8);
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(6);
+      doc.setTextColor(74,158,255);
+      doc.text("EMPRESA DE SEGURIDAD ELECTRONICA",ML+2,Y+13);
+      doc.setFontSize(5);
+      doc.text("🔒",ML+4,Y+8);
+
+      // ── Contacto ──
+      var cy=Y+3;
+      var ctacts=[{t:"www.azseg.mx",b:true},{t:"Facebook: Azseg"},{t:"TikTok: Azseg Seguridad"},{t:"Tel: 8147905469"},{t:"Correo: azseg7@gmail.com"}];
+      ctacts.forEach(function(x){
+        doc.setFont("helvetica",x.b?"bold":"normal");
+        doc.setFontSize(8.5); doc.setTextColor(30,30,30);
+        doc.text(x.t,PW-MR,cy,{align:"right"}); cy+=4.2;
+      });
+      Y+=26;
+
+      // ── Título ──
+      doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(17,17,17);
+      doc.text(tipo==="cotizacion"?"COTIZACIÓN":"NOTA",ML,Y); Y+=6;
+      if(cli){doc.setFontSize(11);doc.text(cli,ML,Y);Y+=6;}
+      Y+=4;
+
+      // ── Columnas ──
+      var cols,cws;
+      if(hasDisc){cols=["Concepto","Cantidad","Descuento","Precio U.","Importe"];cws=[CW*.44,CW*.12,CW*.10,CW*.17,CW*.17];}
+      else{cols=["Concepto","Cantidad","Precio U.","Importe"];cws=[CW*.50,CW*.14,CW*.18,CW*.18];}
+
+      // Encabezado negro
+      doc.setFillColor(17,17,17);
+      doc.rect(ML,Y,CW,HH,"F");
+      doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(9);
+      var cx=ML;
+      cols.forEach(function(col,ci){
+        if(ci===0)doc.text(col,cx+PAD,Y+HH/2+1.5);
+        else doc.text(col,cx+cws[ci]/2,Y+HH/2+1.5,{align:"center"});
+        cx+=cws[ci];
+      });
+      Y+=HH;
+
+      // Filas
+      items.forEach(function(it,ri){
+        var importe=imp(it);
+        doc.setFont("helvetica","normal"); doc.setFontSize(8.5);
+        var wrapped=doc.splitTextToSize(it.desc||"-",cws[0]-PAD*2);
+        var rowH=Math.max(8,wrapped.length*4.5+PAD*2);
+        if(ri%2===1){doc.setFillColor(249,250,251);doc.rect(ML,Y,CW,rowH,"F");}
+        doc.setDrawColor(220,220,220); doc.setLineWidth(0.3);
+        doc.line(ML,Y+rowH,ML+CW,Y+rowH);
+        doc.setTextColor(17,17,17); cx=ML;
+        doc.text(wrapped,cx+PAD,Y+PAD+3.2); cx+=cws[0];
+        var cant=it.qty+(it.unit?" "+it.unit:"");
+        doc.text(cant,cx+cws[1]/2,Y+rowH/2+1.5,{align:"center"}); cx+=cws[1];
+        if(hasDisc){var dv=parseFloat(it.disc)>0?it.disc+"%":"-";doc.text(dv,cx+cws[2]/2,Y+rowH/2+1.5,{align:"center"});cx+=cws[2];}
+        doc.text(fmx(it.price),cx+cws[cols.length-2]/2,Y+rowH/2+1.5,{align:"center"}); cx+=cws[cols.length-2];
+        doc.text(fmx(importe),cx+cws[cols.length-1]/2,Y+rowH/2+1.5,{align:"center"});
+        Y+=rowH;
+      });
+      Y+=8;
+
+      // Totales
+      var sub=items.reduce(function(a,i){return a+imp(i);},0);
+      var iva=Math.round(sub*0.16),tot=sub+iva;
+      var trows=tipo==="cotizacion"?[["Subtotal:",fmx(sub)],["IVA (16%):",fmx(iva)],["Total:",fmx(tot)]]:[["Total:",fmx(sub)]];
+      doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(17,17,17);
+      trows.forEach(function(r){doc.text(r[0],ML,Y);doc.text(r[1],ML+40,Y);Y+=5.5;});
+
+      // Condiciones
+      if(tipo==="cotizacion"){
+        var clist=[
+          "Para iniciar el trabajo es necesario un anticipo del "+ant+"% del valor total de la cotización.",
+          "El saldo restante se liquidará al finalizar la instalación y una vez verificado el correcto funcionamiento del sistema.",
+          "Tiempo estimado de instalación: de "+tins+" a partir de la fecha de pago del anticipo.",
+          "Garantía de los equipos y mano de obra: "+gar,
+          "Garantía no válida por descargas eléctricas, variaciones de voltaje, humedad o mal uso.",
+          "Cualquier material adicional no contemplado en esta cotización se cotizará por separado."
+        ];
+        Y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text("Condiciones comerciales",ML,Y); Y+=5;
+        doc.setFont("helvetica","normal"); doc.setFontSize(8.5);
+        clist.forEach(function(c){var w=doc.splitTextToSize("• "+c,CW);doc.text(w,ML,Y);Y+=w.length*4+1;});
+        Y+=4; doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text("Descuentos:",ML,Y); Y+=5;
+        doc.setFont("helvetica","normal"); doc.setFontSize(8.5);
+        ["Los descuentos aplicados son exclusivos para esta cotización.","No acumulables con otras promociones.","Sujetos a disponibilidad de inventario."].forEach(function(c){doc.text("• "+c,ML,Y);Y+=4.5;});
+      }
+
+      doc.save("cotizacion_azseg.pdf");
+      msg.textContent="✅ PDF descargado";
+      setTimeout(function(){msg.textContent="";},3000);
+    }catch(e){msg.textContent="❌ Error: "+e.message;}
+    btn.disabled=false;
+  },100);
+}
+
+// ── Importar PDF ──────────────────────────────────────────────────────────
+document.getElementById("fi").addEventListener("change",function(e){
+  var file=e.target.files[0]; if(!file)return;
+  var st=document.getElementById("ist");
+  st.className="badge info"; st.textContent="⏳ Cargando lector PDF...";
+  loadPdfJs().then(function(){
+    st.textContent="⏳ Leyendo PDF...";
+    return leerPDF(file);
+  }).then(function(txt){
+    var res=parsePDF(txt);
+    if(res.cliente)document.getElementById("cli").value=res.cliente;
+    if(res.items.length>0){
+      items=res.items.map(function(it){return Object.assign({id:nid++},it);});
+      render();
+      st.className="badge ok"; st.textContent="✅ "+res.items.length+" concepto(s) importados.";
+    } else {
+      st.className="badge err"; st.textContent="⚠️ No se detectaron productos. Ingresa manualmente.";
+    }
+  }).catch(function(err){st.className="badge err"; st.textContent="❌ "+err.message;});
+  this.value="";
+});
+
+function loadPdfJs(){
+  return new Promise(function(res,rej){
+    if(window["pdfjs-dist/build/pdf"]){res();return;}
+    var s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    s.onload=res; s.onerror=rej; document.head.appendChild(s);
+  });
+}
+function leerPDF(file){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    r.onload=function(e){
+      var lib=window["pdfjs-dist/build/pdf"];
+      lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      lib.getDocument({data:new Uint8Array(e.target.result)}).promise.then(function(pdf){
+        var txt="",pages=[];
+        for(var i=1;i<=pdf.numPages;i++)pages.push(i);
+        return pages.reduce(function(p,i){return p.then(function(){return pdf.getPage(i).then(function(pg){return pg.getTextContent().then(function(ct){txt+=ct.items.map(function(x){return x.str;}).join(" ")+"
+";});});});},Promise.resolve()).then(function(){resolve(txt);});
+      }).catch(reject);
+    };
+    r.onerror=function(){reject(new Error("Error leyendo archivo"));};
+    r.readAsArrayBuffer(file);
+  });
+}
+function parsePDF(text){
+  var lines=text.split("
+").map(function(l){return l.trim();}).filter(Boolean);
+  var full=lines.join(" "),cliente="",items=[];
+  var ci=lines.findIndex(function(l){return /cotizaci[oó]n/i.test(l)&&l.length<40;});
+  if(ci!==-1){for(var i=ci+1;i<Math.min(ci+5,lines.length);i++){var l=lines[i];if(l&&!/folio|fecha|v[aá]lid|subtotal|iva|total|clave|concepto/i.test(l)&&l.length<80){cliente=l;break;}}}
+  var sm=/Clave\s+Concepto\s+Cant\.?\s+Precio\s+Unitario\s+Importe/i.exec(full)||/Concepto\s+Cantidad\s+Precio\s+U\.\s+Importe/i.exec(full);
+  var em=/Subtotal/i.exec(full);
+  if(sm&&em&&sm.index<em.index){
+    var block=full.slice(sm.index+sm[0].length,em.index);
+    var rx=/(.+?)\s+(\d+(?:\.\d+)?)\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})/g,m;
+    while((m=rx.exec(block))!==null){var c=m[1].replace(/[A-Z0-9]{5,}\s*/g,"").replace(/\s+/g," ").trim();var p=m[3].replace(/,/g,"");if(c.length>5&&parseFloat(p)>0)items.push({desc:c,qty:m[2],unit:"",price:p,disc:""});}
+  }
+  return {cliente:cliente,items:items};
+}
+
+render();
+</script>
+</body>
+</html>
