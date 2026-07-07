@@ -9,7 +9,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f0f2f5;color:#111}
 .hdr{background:#111;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.hdr-logo{background:#111;border:2px solid #4a9eff;border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:8px}
+.hdr-logo{border:2px solid #4a9eff;border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:8px}
 .hdr-logo span{color:#fff;font-weight:900;font-size:17px;letter-spacing:3px}
 .hdr-logo small{color:#4a9eff;font-size:7px;letter-spacing:1px;display:block}
 .hdr-right{color:#4a9eff;font-size:11px}
@@ -25,7 +25,7 @@ body{font-family:Arial,sans-serif;background:#f0f2f5;color:#111}
 .tb{padding:12px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:700;font-size:14px;color:#666;cursor:pointer;width:100%;transition:.15s}
 .tb.on{border-color:#4a9eff;background:#eff6ff;color:#1a56db}
 .lbl{display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:4px;margin-top:10px}
-input,textarea,select{width:100%;padding:9px 11px;border-radius:7px;border:1.5px solid #ddd;font-size:13px;color:#111;font-family:Arial,sans-serif;background:#fff}
+input,textarea{width:100%;padding:9px 11px;border-radius:7px;border:1.5px solid #ddd;font-size:13px;color:#111;font-family:Arial,sans-serif;background:#fff}
 input:focus,textarea:focus{outline:none;border-color:#4a9eff}
 textarea{resize:vertical}
 .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
@@ -41,7 +41,6 @@ textarea{resize:vertical}
 .totbox .big{font-size:16px;border-top:2px solid #111;padding-top:6px;margin-top:4px}
 .btn-imp{padding:9px 16px;border-radius:7px;border:none;font-weight:700;cursor:pointer;font-size:13px;color:#fff}
 .img-prev{max-width:100px;max-height:70px;border-radius:5px;margin-top:6px;border:1px solid #ddd;display:block}
-/* PREVIEW */
 #pv{display:none;background:#d1d5db;min-height:100vh;padding:20px 14px}
 .pv-wrap{max-width:860px;margin:0 auto}
 .pv-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
@@ -68,8 +67,6 @@ tbody td:first-child{text-align:left}
 .bpdf{padding:10px 24px;border-radius:8px;border:none;background:#1a56db;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
 .bpdf:disabled{background:#888;cursor:not-allowed}
 .pmsg{font-size:12px;color:#1a56db;margin-left:4px}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid #4a9eff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -85,23 +82,15 @@ tbody td:first-child{text-align:left}
 <div id="fm">
 <div class="wrap">
 
-  <!-- API KEY -->
-  <div class="card">
-    <div class="ct">🔑 Clave API de Claude (necesaria para leer PDF e imágenes)</div>
-    <label class="lbl">Pega tu clave — se guarda solo en tu navegador</label>
-    <input type="password" id="akey" placeholder="sk-ant-api03-..." oninput="localStorage.setItem('azseg_k',this.value)">
-    <div style="font-size:11px;color:#888;margin-top:6px">Consíguela gratis en <strong>console.anthropic.com</strong> → API Keys</div>
-  </div>
-
   <!-- IMPORTAR -->
   <div class="card imp-card">
-    <div class="ct">📎 Importar PDF o Imagen de producto</div>
-    <div style="font-size:12px;color:#777;margin-bottom:12px">La IA de Claude analiza el archivo y extrae todos los productos automáticamente.</div>
+    <div class="ct">📎 Importar PDF o agregar imagen de producto</div>
+    <div style="font-size:12px;color:#777;margin-bottom:12px">Sube un PDF de cotización para extraer los productos, o una imagen para agregarla a un concepto.</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input type="file" id="fi-pdf" accept="application/pdf" style="display:none">
       <input type="file" id="fi-img" accept="image/*" style="display:none">
-      <button class="btn-imp" style="background:#1a56db" onclick="document.getElementById('fi-pdf').click()">📄 Subir PDF</button>
-      <button class="btn-imp" style="background:#0f766e" onclick="document.getElementById('fi-img').click()">🖼️ Subir Imagen</button>
+      <button class="btn-imp" style="background:#1a56db" onclick="document.getElementById('fi-pdf').click()">📄 Importar PDF</button>
+      <button class="btn-imp" style="background:#0f766e" onclick="document.getElementById('fi-img').click()">🖼️ Agregar imagen</button>
     </div>
     <div class="badge" id="ist"></div>
   </div>
@@ -154,8 +143,8 @@ tbody td:first-child{text-align:left}
     </div>
     <label class="lbl">Garantía</label>
     <input type="text" id="gar" value="1 año contra defectos de instalación y fabricación.">
-    <label class="lbl" style="margin-top:14px">Condiciones adicionales (texto libre)</label>
-    <textarea id="conds-extra" rows="4" placeholder="Escribe aquí cualquier condición adicional que quieras incluir en la cotización..."></textarea>
+    <label class="lbl" style="margin-top:16px">Texto adicional de condiciones (escribe lo que quieras)</label>
+    <textarea id="cextra" rows="5" placeholder="Ej: El cliente deberá proporcionar acceso al inmueble con 24 horas de anticipación.&#10;Los trabajos se realizarán en horario de 9am a 6pm.&#10;Precio válido por 15 días."></textarea>
   </div>
 
   <button class="bmain" onclick="showPreview()">🔍 Vista previa</button>
@@ -195,17 +184,9 @@ tbody td:first-child{text-align:left}
 <script>
 var tipo="cotizacion", items=[], nid=1;
 
-// Cargar API key guardada
-window.onload=function(){
-  var k=localStorage.getItem("azseg_k")||"";
-  document.getElementById("akey").value=k;
-  items.push(newItem());
-  render();
-};
+window.onload=function(){items.push(newItem());render();};
 
-function getKey(){return document.getElementById("akey").value.trim();}
 function newItem(){return{id:nid++,desc:"",qty:"1",unit:"",price:"",disc:"",imgData:""};}
-
 function setTipo(t){
   tipo=t;
   document.getElementById("btc").classList.toggle("on",t==="cotizacion");
@@ -213,15 +194,11 @@ function setTipo(t){
   document.getElementById("cc").style.display=t==="cotizacion"?"block":"none";
   recalc();
 }
-
 function addItem(){items.push(newItem());render();}
 function delItem(id){if(items.length===1)return;items=items.filter(function(i){return i.id!==id;});render();}
 function upd(id,f,v){var it=items.find(function(i){return i.id===id;});if(it){it[f]=v;recalc();}}
-
 function imp(it){
-  var q=parseFloat(it.qty)||0;
-  var p=parseFloat((it.price||"").replace(/,/g,""))||0;
-  var d=parseFloat(it.disc)||0;
+  var q=parseFloat(it.qty)||0,p=parseFloat((it.price||"").replace(/,/g,""))||0,d=parseFloat(it.disc)||0;
   return Math.round(q*p*(1-d/100));
 }
 function fmx(n){
@@ -237,7 +214,7 @@ function recalc(){
   document.getElementById("tiva-row").style.display=tipo==="cotizacion"?"block":"none";
   items.forEach(function(it){var el=document.getElementById("ip"+it.id);if(el)el.textContent="Importe: "+fmx(imp(it));});
 }
-
+function escH(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
 function render(){
   var c=document.getElementById("items");c.innerHTML="";
   items.forEach(function(it,i){
@@ -260,81 +237,152 @@ function render(){
   recalc();
 }
 
-function escH(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
-
-// ── Importar PDF con IA ───────────────────────────────────────────────────
+// ── Importar PDF con pdf.js ───────────────────────────────────────────────
 document.getElementById("fi-pdf").addEventListener("change",function(e){
   var file=e.target.files[0];if(!file)return;
-  var key=getKey();
   var st=document.getElementById("ist");
-  if(!key){st.className="badge err";st.textContent="❌ Primero pega tu clave API arriba.";this.value="";return;}
-  st.className="badge info";st.innerHTML='<span class="spinner"></span>Leyendo PDF con IA... puede tardar unos segundos';
+  st.className="badge info";st.textContent="⏳ Leyendo PDF...";
+  loadPdfJs().then(function(){return leerPDF(file);}).then(function(pages){
+    var result=parsearPDF(pages);
+    if(result.cliente)document.getElementById("cli").value=result.cliente;
+    if(result.items.length>0){
+      items=result.items.map(function(it){return Object.assign({id:nid++,imgData:""},it);});
+      render();
+      st.className="badge ok";st.textContent="✅ "+result.items.length+" producto(s) importados. Revisa y ajusta los precios.";
+    }else{
+      st.className="badge err";
+      st.textContent="⚠️ No se detectaron productos automáticamente. El PDF puede tener un formato especial — ingresa los datos manualmente.";
+    }
+  }).catch(function(err){st.className="badge err";st.textContent="❌ Error leyendo PDF: "+err.message;});
+  this.value="";
+});
+
+// ── Agregar imagen a último concepto ─────────────────────────────────────
+document.getElementById("fi-img").addEventListener("change",function(e){
+  var file=e.target.files[0];if(!file)return;
+  var st=document.getElementById("ist");
   var reader=new FileReader();
   reader.onload=function(ev){
-    var b64=ev.target.result.split(",")[1];
-    fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-6",
-        max_tokens:1500,
-        messages:[{role:"user",content:[
-          {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},
-          {type:"text",text:"Analiza este PDF de cotización de proveedor. Extrae TODOS los productos/servicios que encuentres. Responde SOLO con JSON válido sin markdown ni texto extra:\n{\"cliente\":\"\",\"items\":[{\"desc\":\"descripción completa del producto\",\"qty\":\"cantidad numérica\",\"unit\":\"unidad o vacío\",\"price\":\"precio unitario solo número sin $ ni comas\",\"disc\":\"descuento en % solo número o vacío\"}]}"}
-        ]}]
-      })
-    }).then(function(r){return r.json();}).then(function(data){
-      if(data.error){st.className="badge err";st.textContent="❌ Error API: "+data.error.message;return;}
-      var txt=data.content[0].text.replace(/```json|```/g,"").trim();
-      var info=JSON.parse(txt);
-      if(info.cliente)document.getElementById("cli").value=info.cliente;
-      if(info.items&&info.items.length>0){
-        items=info.items.map(function(it){return{id:nid++,desc:it.desc||"",qty:it.qty||"1",unit:it.unit||"",price:it.price||"",disc:it.disc||"",imgData:""};});
-        render();
-        st.className="badge ok";st.textContent="✅ "+items.length+" producto(s) extraídos correctamente.";
-      }else{st.className="badge err";st.textContent="⚠️ No se encontraron productos en el PDF.";}
-    }).catch(function(err){st.className="badge err";st.textContent="❌ Error: "+err.message;});
+    // Agregar nuevo concepto con imagen
+    var ni=newItem();
+    ni.imgData=ev.target.result;
+    items.push(ni);
+    render();
+    st.className="badge ok";st.textContent="✅ Imagen agregada. Escribe la descripción y el precio del producto.";
+    // Scroll al último concepto
+    setTimeout(function(){
+      var els=document.querySelectorAll(".ibox");
+      if(els.length>0)els[els.length-1].scrollIntoView({behavior:"smooth",block:"center"});
+    },100);
   };
   reader.readAsDataURL(file);
   this.value="";
 });
 
-// ── Importar Imagen con IA ────────────────────────────────────────────────
-document.getElementById("fi-img").addEventListener("change",function(e){
-  var file=e.target.files[0];if(!file)return;
-  var key=getKey();
-  var st=document.getElementById("ist");
-  if(!key){st.className="badge err";st.textContent="❌ Primero pega tu clave API arriba.";this.value="";return;}
-  st.className="badge info";st.innerHTML='<span class="spinner"></span>Analizando imagen con IA...';
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    var b64=ev.target.result.split(",")[1];
-    var mtype=file.type||"image/jpeg";
-    fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-6",
-        max_tokens:800,
-        messages:[{role:"user",content:[
-          {type:"image",source:{type:"base64",media_type:mtype,data:b64}},
-          {type:"text",text:"Analiza esta imagen de producto de seguridad electrónica. Responde SOLO con JSON válido sin markdown:\n{\"desc\":\"descripción profesional y completa del producto\",\"qty\":\"1\",\"unit\":\"\",\"price\":\"precio si aparece sino vacío\",\"disc\":\"\"}"}
-        ]}]
-      })
-    }).then(function(r){return r.json();}).then(function(data){
-      if(data.error){st.className="badge err";st.textContent="❌ Error API: "+data.error.message;return;}
-      var txt=data.content[0].text.replace(/```json|```/g,"").trim();
-      var info=JSON.parse(txt);
-      var ni=newItem();
-      ni.desc=info.desc||"";ni.qty=info.qty||"1";ni.unit=info.unit||"";
-      ni.price=info.price||"";ni.disc=info.disc||"";ni.imgData=ev.target.result;
-      items.push(ni);render();
-      st.className="badge ok";st.textContent="✅ Imagen analizada y producto agregado.";
-    }).catch(function(err){st.className="badge err";st.textContent="❌ Error: "+err.message;});
-  };
-  reader.readAsDataURL(file);
-  this.value="";
-});
+function loadPdfJs(){
+  return new Promise(function(res,rej){
+    if(window["pdfjs-dist/build/pdf"]){res();return;}
+    var s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    s.onload=res;s.onerror=function(){rej(new Error("No se pudo cargar el lector de PDF"));};
+    document.head.appendChild(s);
+  });
+}
+
+function leerPDF(file){
+  return new Promise(function(resolve,reject){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var lib=window["pdfjs-dist/build/pdf"];
+      lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      lib.getDocument({data:new Uint8Array(e.target.result)}).promise.then(function(pdf){
+        var pages=[],ps=[];
+        for(var i=1;i<=pdf.numPages;i++)ps.push(i);
+        return ps.reduce(function(p,i){
+          return p.then(function(){
+            return pdf.getPage(i).then(function(pg){
+              return pg.getTextContent().then(function(ct){
+                // Extraer con posiciones para detectar columnas
+                var rows=[];
+                ct.items.forEach(function(item){
+                  rows.push({text:item.str,x:Math.round(item.transform[4]),y:Math.round(item.transform[5])});
+                });
+                pages.push(rows);
+              });
+            });
+          });
+        },Promise.resolve()).then(function(){resolve(pages);});
+      }).catch(reject);
+    };
+    reader.onerror=function(){reject(new Error("Error leyendo archivo"));};
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function parsearPDF(pages){
+  // Unir todo el texto
+  var allText="";
+  var allItems=[];
+  pages.forEach(function(rows){
+    rows.forEach(function(r){allText+=r.text+" ";});
+    allText+="\n";
+  });
+
+  var cliente="",pitems=[];
+
+  // Buscar cliente
+  var cliMatch=/(?:cliente|para|señor|empresa)[:\s]+([A-ZÁÉÍÓÚÑ][^\n]{3,40})/i.exec(allText);
+  if(cliMatch)cliente=cliMatch[1].trim();
+
+  // Estrategia 1: buscar entre cabecera de tabla y totales
+  var startRx=[
+    /Concepto\s+Cantidad\s+Precio/i,
+    /Descripci[oó]n\s+Cant/i,
+    /Clave\s+Concepto/i,
+    /Producto\s+Cant/i,
+    /CONCEPTO\s+CANT/i
+  ];
+  var endRx=/Subtotal|Sub\s*total|SUBTOTAL|Total\s+\$|TOTAL/i;
+
+  var startIdx=-1,startLen=0;
+  for(var ri=0;ri<startRx.length;ri++){
+    var m=startRx[ri].exec(allText);
+    if(m){startIdx=m.index;startLen=m[0].length;break;}
+  }
+  var endMatch=endRx.exec(allText);
+
+  if(startIdx>=0&&endMatch&&startIdx<endMatch.index){
+    var block=allText.slice(startIdx+startLen,endMatch.index);
+    // Buscar líneas con precio: TEXTO ... NUMERO ... $PRECIO $IMPORTE
+    var lineRx=/([A-Za-záéíóúüñÁÉÍÓÚÜÑ][^$\n]{5,80?}?)\s+(\d+(?:[.,]\d+)?)\s+(?:pza|pzas|m|ml|kg|lt|kit|hrs?)?\s*\$?\s*([\d,]+\.?\d*)\s+\$?\s*([\d,]+\.?\d*)/gi;
+    var m2;
+    while((m2=lineRx.exec(block))!==null){
+      var desc=m2[1].replace(/^\s*[\d\w]{3,10}\s+/,"").replace(/\s+/g," ").trim();
+      var qty=m2[2].replace(",",".");
+      var price=m2[3].replace(/,/g,"");
+      if(desc.length>4&&parseFloat(price)>0&&!/(subtotal|total|iva|impuesto)/i.test(desc)){
+        pitems.push({desc:desc,qty:qty,unit:"",price:price,disc:""});
+      }
+    }
+  }
+
+  // Estrategia 2: buscar patrones de precio en todo el texto si no encontramos nada
+  if(pitems.length===0){
+    var priceRx=/([A-Za-záéíóúüñÁÉÍÓÚÜÑ][^$\n]{8,100}?)\s+\$\s*([\d,]+\.?\d{0,2})/g;
+    var m3;
+    while((m3=priceRx.exec(allText))!==null){
+      var desc2=m3[1].replace(/\s+/g," ").trim();
+      var price2=m3[2].replace(/,/g,"");
+      if(desc2.length>8&&parseFloat(price2)>0&&!/(subtotal|total|iva|impuesto|anticipo|saldo)/i.test(desc2)){
+        pitems.push({desc:desc2,qty:"1",unit:"",price:price2,disc:""});
+      }
+    }
+    // Limitar a 20 items máximo
+    if(pitems.length>20)pitems=pitems.slice(0,20);
+  }
+
+  return{cliente:cliente,items:pitems};
+}
 
 // ── Vista previa ──────────────────────────────────────────────────────────
 function showForm(){
@@ -348,10 +396,10 @@ function showPreview(){
   var hasDisc=items.some(function(i){return parseFloat(i.disc)>0;});
   var sub=items.reduce(function(a,i){return a+imp(i);},0);
   var iva=Math.round(sub*0.16),tot=sub+iva;
-  var ant=(document.getElementById("ant")||{value:"50"}).value;
-  var tins=(document.getElementById("tins")||{value:"1 a 2 días naturales"}).value;
-  var gar=(document.getElementById("gar")||{value:"1 año"}).value;
-  var extra=(document.getElementById("conds-extra")||{value:""}).value.trim();
+  var ant=document.getElementById("ant").value||"50";
+  var tins=document.getElementById("tins").value||"1 a 2 días naturales";
+  var gar=document.getElementById("gar").value||"1 año";
+  var extra=document.getElementById("cextra").value.trim();
 
   document.getElementById("ptit").textContent=tipo==="cotizacion"?"COTIZACIÓN":"NOTA";
   document.getElementById("pcli").textContent=cli;
@@ -364,25 +412,21 @@ function showPreview(){
   var tb="";
   items.forEach(function(it,i){
     var bg=i%2===1?"background:#f9fafb":"";
-    var imgCell=it.imgData?'<img src="'+it.imgData+'" style="max-width:60px;max-height:45px;display:block;margin-bottom:4px;border-radius:3px">':'';
+    var imgHtml=it.imgData?'<img src="'+it.imgData+'" style="max-width:60px;max-height:45px;display:block;margin-bottom:4px;border-radius:3px">':'';
     tb+='<tr style="border-bottom:1px solid #e5e7eb;'+bg+'">'+
-      '<td style="text-align:left">'+imgCell+(it.desc||"-")+'</td>'+
+      '<td style="text-align:left">'+imgHtml+(it.desc||"-")+'</td>'+
       '<td>'+it.qty+(it.unit?" "+it.unit:"")+'</td>'+
       (hasDisc?'<td>'+(parseFloat(it.disc)>0?it.disc+"%":"-")+'</td>':"")+
-      '<td>'+fmx(it.price)+'</td>'+
-      '<td>'+fmx(imp(it))+'</td></tr>';
+      '<td>'+fmx(it.price)+'</td><td>'+fmx(imp(it))+'</td></tr>';
   });
   document.getElementById("ptb").innerHTML=tb;
 
-  var tot_html="";
-  if(tipo==="cotizacion"){
-    tot_html='<div><strong>Subtotal:</strong> '+fmx(sub)+'</div>'+
-             '<div><strong>IVA (16%):</strong> '+fmx(iva)+'</div>'+
-             '<div><strong>Total:</strong> '+fmx(tot)+'</div>';
-  }else{tot_html='<div><strong>Total:</strong> '+fmx(sub)+'</div>';}
+  var tot_html=tipo==="cotizacion"
+    ?'<div><strong>Subtotal:</strong> '+fmx(sub)+'</div><div><strong>IVA (16%):</strong> '+fmx(iva)+'</div><div><strong>Total:</strong> '+fmx(tot)+'</div>'
+    :'<div><strong>Total:</strong> '+fmx(sub)+'</div>';
   document.getElementById("ptot").innerHTML=tot_html;
 
-  var con_html="";
+  var con="";
   if(tipo==="cotizacion"){
     var base=[
       "Para iniciar el trabajo es necesario un anticipo del "+ant+"% del valor total de la cotización.",
@@ -392,17 +436,15 @@ function showPreview(){
       "Garantía no válida por descargas eléctricas, variaciones de voltaje, humedad o mal uso.",
       "Cualquier material adicional no contemplado en esta cotización se cotizará por separado."
     ];
-    con_html='<div style="font-weight:700;font-size:10px;margin-bottom:5px">Condiciones comerciales</div>'+
+    con='<div style="font-weight:700;font-size:10px;margin-bottom:5px">Condiciones comerciales</div>'+
       '<ul>'+base.map(function(c){return'<li>'+c+'</li>';}).join("")+'</ul>';
-    if(extra){
-      con_html+='<div style="white-space:pre-wrap;margin-bottom:8px">'+extra+'</div>';
-    }
-    con_html+='<div style="font-weight:700;margin-bottom:4px">Descuentos:</div>'+
+    if(extra){con+='<div style="margin-bottom:8px;white-space:pre-wrap">'+extra+'</div>';}
+    con+='<div style="font-weight:700;margin-bottom:4px">Descuentos:</div>'+
       '<ul><li>Los descuentos aplicados son exclusivos para esta cotización.</li>'+
       '<li>No acumulables con otras promociones.</li>'+
       '<li>Sujetos a disponibilidad de inventario.</li></ul>';
   }
-  document.getElementById("pcon").innerHTML=con_html;
+  document.getElementById("pcon").innerHTML=con;
 
   document.getElementById("fm").style.display="none";
   document.getElementById("pv").style.display="block";
@@ -412,17 +454,17 @@ function showPreview(){
 // ── Generar PDF ───────────────────────────────────────────────────────────
 function makePDF(){
   var btn=document.getElementById("bpdf"),msg=document.getElementById("pmsg");
-  btn.disabled=true;msg.textContent="⏳ Generando PDF...";
+  btn.disabled=true;msg.textContent="⏳ Generando...";
   setTimeout(function(){
     try{
       var J=window.jspdf.jsPDF;
       var doc=new J({unit:"mm",format:"letter"});
       var ML=18,MR=18,PW=215.9,CW=PW-ML-MR,Y=18;
       var cli=document.getElementById("cli").value.trim();
-      var ant=(document.getElementById("ant")||{value:"50"}).value;
-      var tins=(document.getElementById("tins")||{value:"1 a 2 días naturales"}).value;
-      var gar=(document.getElementById("gar")||{value:"1 año"}).value;
-      var extra=(document.getElementById("conds-extra")||{value:""}).value.trim();
+      var ant=document.getElementById("ant").value||"50";
+      var tins=document.getElementById("tins").value||"1 a 2 días naturales";
+      var gar=document.getElementById("gar").value||"1 año";
+      var extra=document.getElementById("cextra").value.trim();
       var hasDisc=items.some(function(i){return parseFloat(i.disc)>0;});
 
       // Logo
@@ -446,12 +488,12 @@ function makePDF(){
       if(cli){doc.setFontSize(11);doc.text(cli,ML,Y);Y+=6;}
       Y+=4;
 
-      // Columnas tabla
+      // Columnas
       var cols,cws;
       if(hasDisc){cols=["Concepto","Cantidad","Descuento","Precio U.","Importe"];cws=[CW*.44,CW*.12,CW*.10,CW*.17,CW*.17];}
       else{cols=["Concepto","Cantidad","Precio U.","Importe"];cws=[CW*.50,CW*.14,CW*.18,CW*.18];}
 
-      // Encabezado negro
+      // Encabezado tabla
       doc.setFillColor(17,17,17);doc.rect(ML,Y,CW,8,"F");
       doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(9);
       var cx=ML;
@@ -466,33 +508,26 @@ function makePDF(){
       items.forEach(function(it,ri){
         var im=imp(it);
         doc.setFont("helvetica","normal");doc.setFontSize(8.5);
-        var wrapped=doc.splitTextToSize(it.desc||"-",cws[0]-5);
-        var rowH=Math.max(8,wrapped.length*4.5+5);
-
-        // Imagen en PDF si existe
-        var imgH=0;
-        if(it.imgData){
-          imgH=18;
-          rowH=Math.max(rowH,imgH+8);
-        }
+        var hasImg=it.imgData&&it.imgData.length>0;
+        var descW=hasImg?cws[0]-24:cws[0]-5;
+        var wrapped=doc.splitTextToSize(it.desc||"-",descW);
+        var rowH=Math.max(hasImg?22:8,wrapped.length*4.5+5);
 
         if(ri%2===1){doc.setFillColor(249,250,251);doc.rect(ML,Y,CW,rowH,"F");}
         doc.setDrawColor(220,220,220);doc.setLineWidth(0.3);doc.line(ML,Y+rowH,ML+CW,Y+rowH);
         doc.setTextColor(17,17,17);cx=ML;
 
-        // Concepto con imagen
-        if(it.imgData){
-          try{doc.addImage(it.imgData,"JPEG",cx+2,Y+2,20,imgH-2);}catch(e){}
-          doc.text(wrapped,cx+24,Y+5);
+        if(hasImg){
+          try{doc.addImage(it.imgData,"JPEG",cx+2,Y+2,18,rowH-4);}catch(e){}
+          doc.text(wrapped,cx+22,Y+5);
         }else{
           doc.text(wrapped,cx+2.5,Y+4.5);
         }
         cx+=cws[0];
 
         var mid=Y+rowH/2+1.5;
-        var cant=it.qty+(it.unit?" "+it.unit:"");
-        doc.text(cant,cx+cws[1]/2,mid,{align:"center"});cx+=cws[1];
-        if(hasDisc){var dv=parseFloat(it.disc)>0?it.disc+"%":"-";doc.text(dv,cx+cws[2]/2,mid,{align:"center"});cx+=cws[2];}
+        doc.text(it.qty+(it.unit?" "+it.unit:""),cx+cws[1]/2,mid,{align:"center"});cx+=cws[1];
+        if(hasDisc){doc.text(parseFloat(it.disc)>0?it.disc+"%":"-",cx+cws[2]/2,mid,{align:"center"});cx+=cws[2];}
         doc.text(fmx(it.price),cx+cws[cols.length-2]/2,mid,{align:"center"});cx+=cws[cols.length-2];
         doc.text(fmx(im),cx+cws[cols.length-1]/2,mid,{align:"center"});
         Y+=rowH;
@@ -520,7 +555,7 @@ function makePDF(){
         doc.setFont("helvetica","normal");doc.setFontSize(8.5);
         base.forEach(function(c){var w=doc.splitTextToSize("• "+c,CW);doc.text(w,ML,Y);Y+=w.length*4+1;});
         if(extra){
-          Y+=2;
+          Y+=3;
           var ew=doc.splitTextToSize(extra,CW);
           doc.text(ew,ML,Y);Y+=ew.length*4+2;
         }
@@ -532,7 +567,7 @@ function makePDF(){
       doc.save("cotizacion_azseg.pdf");
       msg.textContent="✅ PDF descargado";
       setTimeout(function(){msg.textContent="";},3000);
-    }catch(e){msg.textContent="❌ Error: "+e.message;}
+    }catch(e){msg.textContent="❌ "+e.message;}
     btn.disabled=false;
   },100);
 }
